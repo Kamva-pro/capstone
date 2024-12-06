@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirect Button</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 20%;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Redirect to Cognito Page</h1>
+    <button id="redirectButton">Go to Cognito Login</button>
+
+    <script>
+        document.getElementById('redirectButton').addEventListener('click', function () {
+            const url = "https://49a3jobn2cps78ide8s0rcenm1.auth.eu-west-1.amazoncognito.com/oauth2/authorize?client_id=49a3jobn2cps78ide8s0rcenm1&response_type=code&redirect_uri=http://localhost";
+            window.location.href = url;
+        });
+    </script>
+</body>
+</html>
+
