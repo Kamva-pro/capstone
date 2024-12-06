@@ -199,4 +199,4 @@ Outputs:
 
   CognitoAuthCommand:
     Description: AWS CLI command for Amazon Cognito User Pool authentication
-    Value: !Sub 'aws cognito-idp initiate-auth --auth-flow USER_PASSWORD_AUTH --client-id ${UserPoolClient} --auth-parameters USERNAME=mchiloane023@student.wethinkcode.co.za,PASSWORD=Johnjaco1@ --query "AuthenticationResult.IdToken" --output text'
+    Value: !Sub 'aws cognito-idp initiate-auth --auth-flow USER_PASSWORD_AUTH --client-id ${UserPoolClient} --auth-parameters USERNAME=<username>.co.za,PASSWORD=<password> --query "AuthenticationResult.IdToken" --output text'
