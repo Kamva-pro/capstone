@@ -1,0 +1,131 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: white;
+    font-family: 'Roboto Condensed', sans-serif;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: white;
+    width: 100%;
+    padding: 20px 40px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Navbar shadow for elevation */
+}
+
+#navitems {
+    display: flex;
+    gap: 36px;
+}
+
+li.navitem {
+    font-weight: 400;
+    font-size: 16px !important;
+    list-style: none;
+    text-decoration: none;
+    color: #222;
+    opacity: 0.85;
+}
+
+li.navitem.active{
+    color:#ff6700;
+    font-weight: 500;
+}
+
+#navbar-brand {
+    color: #ff6700;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.auth-buttons {
+   gap: 24px;
+   display: flex;
+}
+
+#register-btn {
+    background-color: transparent;
+    padding: 12px 36px;
+    color: #ff6700;
+    font-weight: 600;
+    border: solid #ff6700 1px;
+    border-radius: 8px;
+}
+
+#login-btn {
+    background-color: #ff6700;
+    padding: 12px 36px;
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+}
+
+/* Hero Section Styles */
+#hero-section {
+    background-image: url('../assets/pexels-robertkso-12171793.jpg'); /* Replace with your actual image URL */
+    background-size: cover;
+    background-position: center;
+    height: 80vh; /* Adjusted height, now not spanning the entire screen */
+    margin: 20px 40px; /* Centered horizontally with margin on top and bottom */
+    padding: 50px;
+    position: relative;
+    border-radius: 8px; /* Optional: Adds rounded corners to the hero section */
+    overflow: hidden; /* Prevents any overflow */
+}
+
+.hero-overlay {
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+    color: white;
+    text-align: center;
+    padding: 60px 30px;
+    border-radius: 10px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0; /* Makes the overlay cover the entire hero section */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-header {
+    font-family: 'Roboto', sans-serif;
+    font-size: 64px; /* Increased header size */
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.hero-subtext {
+    font-size: 20px; /* Larger subtext for better visibility */
+    margin-bottom: 30px;
+}
+
+.btn-primary{
+    background-color: #ff6700;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.cta-button {
+    color: white;
+    font-weight: 600;
+    font-size: 18px;
+    padding: 18px 40px; /* Larger button size */
+    border: none;
+    border-radius: 30px; /* Rounded corners */
+ 
+}
+
+.cta-button:hover {
+    background-color: #e55a00;
+}

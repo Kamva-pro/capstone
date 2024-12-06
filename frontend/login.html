@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap">
+</head>
+<body>
+    <div class="login-container">
+        <div class="left-side">
+            <div class="form-container">
+                <h2 class="form-header">Login</h2>
+
+                <!-- Login Form -->
+                <form class="login-form">
+                    <div class="input-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="cta-button">Login</button>
+                </form>
+
+                <!-- Forgot Password & Register Links -->
+                <div class="form-links">
+                    <a href="#" class="forgot-password">Forgot Password?</a>
+                    <p>Don't have an account? <a href="/signup" class="signup-link">Sign Up</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-side">
+            <div class="right-overlay">
+                <h1 class="overlay-text">Welcome Back to Self Storage</h1>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
