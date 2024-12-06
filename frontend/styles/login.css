@@ -112,7 +112,7 @@ input:focus {
 /* Right Side (Background Image with Overlay) */
 .right-side {
     flex: 1;
-    background-image: url('your-background-image.jpg'); /* Replace with your actual image URL */
+    background-image: url('../assets/pexels-robertkso-12171793.jpg'); /* Replace with your actual image URL */
     background-size: cover;
     background-position: center;
     position: relative;
@@ -124,7 +124,7 @@ input:focus {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 102, 204, 0.7); /* Primary color overlay */
+    background-color: #e55a00;/* Primary color overlay */
     display: flex;
     justify-content: center;
     align-items: center;
