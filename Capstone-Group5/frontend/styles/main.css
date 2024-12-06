@@ -69,7 +69,7 @@ li.navitem.active{
 
 /* Hero Section Styles */
 #hero-section {
-    background-image: url('./assets/pexels-robertkso-12171793.jpg'); /* Replace with your actual image URL */
+    background-image: url('../assets/pexels-robertkso-12171793.jpg'); /* Replace with your actual image URL */
     background-size: cover;
     background-position: center;
     height: 80vh; /* Adjusted height, now not spanning the entire screen */

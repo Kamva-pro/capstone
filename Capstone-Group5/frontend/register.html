@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="styles/register.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap">
+</head>
+<body>
+    <div class="signup-container">
+        <div class="left-side">
+            <div class="left-overlay">
+                <h1 class="overlay-text">Welcome to Self Storage</h1>
+            </div>
+        </div>
+
+        <div class="right-side">
+            <div class="form-container">
+                <h2 class="form-header">Register</h2>
+
+                <!-- Registration Form -->
+                <form class="signup-form">
+                    <div class="input-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="confirm-password">Confirm Password</label>
+                        <input type="password" id="confirm-password" name="confirm-password" required>
+                    </div>
+                    <button type="submit" class="cta-button">Register</button>
+                </form>
+
+                <!-- Forgot Password & Login Links -->
+                <div class="form-links">
+                    <a href="#" class="forgot-password">Forgot Password?</a>
+                    <p>Already have an account? <a href="/login" class="login-link">Login</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
