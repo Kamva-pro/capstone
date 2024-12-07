@@ -22,6 +22,8 @@ nav {
 #navitems {
     display: flex;
     gap: 36px;
+    align-items: center;
+    justify-content: center;
 }
 
 li.navitem {
@@ -153,5 +155,5 @@ li.navitem.active{
 }
 
 a{
-    text-decoration: none;
+    text-decoration: none !important;
 }
