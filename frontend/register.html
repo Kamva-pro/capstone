@@ -18,10 +18,8 @@
         <div class="right-side">
             <div class="form-container">
                 <h2 class="form-header">Sign Up</h2>
-                <!-- Just a redirect button -->
                 <button onclick="redirectToCognitoSignUp()" class="cta-button">Sign Up with Cognito</button>
 
-                <!-- Login Link -->
                 <div class="form-links">
                     <p>Already have an account? <a href="login.html" class="login-link">Login</a></p>
                 </div>
@@ -30,11 +28,8 @@
     </div>
 
     <script>
-        // Replace these values with your Cognito details
-        const clientId = '49a3jobn2cps78ide8s0rcenm1'; // Your Cognito Client ID
-        const redirectUri = 'http://localhost'; // Your Redirect URI
-
-        // Redirect to Cognito's hosted sign-up page
+        const clientId = '49a3jobn2cps78ide8s0rcenm1'; 
+        const redirectUri = 'http://localhost'; 
         function redirectToCognitoSignUp() {
             const signUpUrl = `https://49a3jobn2cps78ide8s0rcenm1.auth.eu-west-1.amazoncognito.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=aws.cognito.signin.user.admin+email+openid+profile+phone`;
             window.location.href = signUpUrl;
