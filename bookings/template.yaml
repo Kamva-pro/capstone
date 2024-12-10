@@ -87,7 +87,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/
-      Handler: api/users.lambda_handler
+      Handler: storage/users.lambda_handler
       Environment:
         Variables:
           USERS_TABLE: !Ref UsersTable
