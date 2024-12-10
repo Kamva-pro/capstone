@@ -40,38 +40,6 @@ Resources:
           KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
 
-  SendNotificationsFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: notifications/send_notifications.lambda_handler
-      Runtime: python3.9
-      CodeUri: src/
-      MemorySize: 128
-      Timeout: 10
-      Environment:
-        Variables:
-          SNS_TOPIC_ARN: !Ref NotificationSNS
-      Policies:
-        - SNSPublishMessagePolicy:
-            TopicName: !Ref NotificationSNS
-  
-  NotificationSNS:
-    Type: AWS::SNS::Topic
-    Properties:
-      TopicName: NotificationsTopic
-
-  PaymentsTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: Payments
-      AttributeDefinitions:
-        - AttributeName: PaymentID
-          AttributeType: S
-      KeySchema:
-        - AttributeName: PaymentID
-          KeyType: HASH
-      BillingMode: PAY_PER_REQUEST
-
   BillingTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -119,7 +87,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/
-      Handler: users/users.lambda_handler
+      Handler: api/users.lambda_handler
       Environment:
         Variables:
           USERS_TABLE: !Ref UsersTable
@@ -127,18 +95,14 @@ Resources:
           BILLING_TABLE: !Ref BillingTable
           NOTIFICATIONS_TABLE: !Ref NotificationsTable
       Policies:
-        - Statement:
-            - Effect: Allow
-              Action:
-                - dynamodb:Scan
-                - dynamodb:GetItem
-                - dynamodb:PutItem
-                - dynamodb:DeleteItem
-              Resource:
-                - !GetAtt UsersTable.Arn
-                - !GetAtt StorageUnitsTable.Arn
-                - !GetAtt BillingTable.Arn
-                - !GetAtt NotificationsTable.Arn
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref StorageUnitsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BillingTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref NotificationsTable
       Events:
         GetUsers:
           Type: Api
