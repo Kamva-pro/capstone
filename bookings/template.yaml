@@ -40,6 +40,74 @@ Resources:
           KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
 
+  PaymentsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Payments
+      AttributeDefinitions:
+        - AttributeName: PaymentID
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PaymentID
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
+  NotificationSNS:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: NotificationsTopic
+
+  PrepayFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: billing/prepay.lambda_handler
+      Runtime: python3.9
+      CodeUri: src/
+      MemorySize: 128
+      Timeout: 10
+      Environment:
+        Variables:
+          STORAGE_UNITS_TABLE: !Ref StorageUnitsTable
+          PAYMENTS_TABLE: !Ref PaymentsTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref PaymentsTable
+
+  RecurringFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: billing/recurring.lambda_handler
+      Runtime: python3.9
+      CodeUri: src/
+      MemorySize: 128
+      Timeout: 10
+      Environment:
+        Variables:
+          PAYMENTS_TABLE: !Ref PaymentsTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref PaymentsTable
+
+  SendNotificationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: notifications/send_notifications.lambda_handler
+      Runtime: python3.9
+      CodeUri: src/
+      MemorySize: 128
+      Timeout: 10
+      Environment:
+        Variables:
+          SNS_TOPIC_ARN: !Ref NotificationSNS
+      Policies:
+        - SNSPublishMessagePolicy:
+            TopicName: !Ref NotificationSNS
+      Events:
+        NotifyEvent:
+          Type: SNS
+          Properties:
+            Topic: !Ref NotificationSNS
+
   BillingTable:
     Type: AWS::DynamoDB::Table
     Properties:
