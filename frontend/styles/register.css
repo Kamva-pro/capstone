@@ -1,0 +1,161 @@
+/* Global Styles */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f5f5f5;
+}
+
+.signup-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Left Side (Background Image with Overlay) */
+.left-side {
+    flex: 1;
+    background-image: url('../assets/pexels-handiboyz-5775099.jpg'); /* Replace with your actual image URL */
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.left-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ff6700; /* Primary color overlay (adjust color as needed) */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.overlay-text {
+    color: white;
+    font-size: 48px;
+    text-align: center;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 20px;
+}
+
+/* Right Side (Form) */
+.right-side {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.form-container {
+    background-color: white;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.form-header {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 6px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+input:focus {
+    outline: none;
+    border-color: #ff6700;
+}
+
+.cta-button {
+    background-color: #ff6700;
+    color: white;
+    font-weight: 600;
+    font-size: 18px;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 20px;
+}
+
+.cta-button:hover {
+    background-color: #e55a00;
+}
+
+/* Links */
+.forgot-password {
+    font-size: 14px;
+    color: #ff6700;
+    text-decoration: none;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+.form-links {
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.login-link {
+    color: #ff6700;
+    text-decoration: none;
+}
+
+.login-link:hover {
+    text-decoration: underline;
+}
+
+/* Responsiveness */
+@media screen and (max-width: 768px) {
+    .overlay-text {
+        font-size: 36px;
+    }
+
+    .form-container {
+        width: 90%;
+        max-width: 400px;
+    }
+
+    .signup-container {
+        flex-direction: column;
+    }
+
+    .left-side {
+        height: 50vh;
+        max-height: 400px;
+    }
+}

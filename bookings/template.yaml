@@ -1,264 +1,233 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Transform: 'AWS::Serverless-2016-10-31'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  SAM Template for Digital Self-Storage Solution
+
+Globals:
+  Function:
+    Runtime: python3.9
+    MemorySize: 128
+    Timeout: 100
+    Tracing: Active
 
 Resources:
-  # DynamoDB Table for Storage Units
+  ### DynamoDB Tables ###
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AWS::StackName}-Users
+      AttributeDefinitions:
+        - AttributeName: userid
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userid
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
   StorageUnitsTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: StorageUnits
+      TableName: !Sub ${AWS::StackName}-StorageUnits
       AttributeDefinitions:
-        - AttributeName: facility_id
+        - AttributeName: facilityId
           AttributeType: S
-        - AttributeName: unit_id
+        - AttributeName: unitId
           AttributeType: S
       KeySchema:
-        - AttributeName: facility_id
+        - AttributeName: facilityId
           KeyType: HASH
-        - AttributeName: unit_id
+        - AttributeName: unitId
           KeyType: RANGE
-      ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+      BillingMode: PAY_PER_REQUEST
 
-  # list_units Lambda Function
-  ListUnitsFunction:
+  PaymentsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Payments
+      AttributeDefinitions:
+        - AttributeName: PaymentID
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PaymentID
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
+  NotificationSNS:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: NotificationsTopic
+
+  PrepayFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: storage/list_units.lambda_handler
+      Handler: billing/prepay.lambda_handler
       Runtime: python3.9
       CodeUri: src/
       MemorySize: 128
       Timeout: 10
       Environment:
         Variables:
-          TABLE_NAME: !Ref StorageUnitsTable
+          STORAGE_UNITS_TABLE: !Ref StorageUnitsTable
+          PAYMENTS_TABLE: !Ref PaymentsTable
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref StorageUnitsTable  # Attach DynamoDB access permissions
-        - AWSLambdaBasicExecutionRole  # Add basic execution role for CloudWatch logging
+            TableName: !Ref PaymentsTable
 
-  # book_unit Lambda Function
-  BookUnitFunction:
+  RecurringFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: storage/book_unit.lambda_handler
+      Handler: billing/recurring.lambda_handler
       Runtime: python3.9
       CodeUri: src/
       MemorySize: 128
       Timeout: 10
       Environment:
         Variables:
-          TABLE_NAME: !Ref StorageUnitsTable
+          PAYMENTS_TABLE: !Ref PaymentsTable
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref StorageUnitsTable  # Attach DynamoDB access permissions
+            TableName: !Ref PaymentsTable
 
-  # cancel_unit Lambda Function
-  CancelUnitFunction:
+  SendNotificationsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: storage/cancel_unit.lambda_handler
+      Handler: notifications/send_notifications.lambda_handler
       Runtime: python3.9
       CodeUri: src/
       MemorySize: 128
       Timeout: 10
       Environment:
         Variables:
-          TABLE_NAME: !Ref StorageUnitsTable
+          SNS_TOPIC_ARN: !Ref NotificationSNS
       Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref StorageUnitsTable  # Attach DynamoDB access permissions
+        - SNSPublishMessagePolicy:
+            TopicName: !Ref NotificationSNS
+      Events:
+        NotifyEvent:
+          Type: SNS
+          Properties:
+            Topic: !Ref NotificationSNS
 
-  # update_unit_status Lambda Function
-  UpdateUnitStatusFunction:
+  BillingTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AWS::StackName}-Billing
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: paymentId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        - AttributeName: paymentId
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+
+  NotificationsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub ${AWS::StackName}-Notifications
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: notificationId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        - AttributeName: notificationId
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+
+  ### API Gateway ###
+  RestAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Cors:
+        AllowMethods: "'GET,POST,PUT,DELETE'"
+        AllowHeaders: "'Content-Type,Authorization'"
+        AllowOrigin: "'*'"
+
+  ### Lambda Functions ###
+  UsersFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: storage/update_unit_status.lambda_handler
-      Runtime: python3.9
       CodeUri: src/
-      MemorySize: 128
-      Timeout: 10
+      Handler: storage/users.lambda_handler
       Environment:
         Variables:
-          TABLE_NAME: !Ref StorageUnitsTable
+          USERS_TABLE: !Ref UsersTable
+          STORAGE_UNITS_TABLE: !Ref StorageUnitsTable
+          BILLING_TABLE: !Ref BillingTable
+          NOTIFICATIONS_TABLE: !Ref NotificationsTable
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref StorageUnitsTable  # Attach DynamoDB access permissions
-
-  # GetUnitsApi (API for listing units)
-  GetUnitsApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      Name: GetUnitsApi
-      StageName: prod
-      DefinitionBody:
-        swagger: '2.0'
-        info:
-          title: Storage Unit Management API - Get Units
-          description: API for retrieving storage units.
-          version: '1.0'
-        paths:
-          /units:
-            get:
-              summary: List all storage units
-              operationId: listUnits
-              consumes:
-                - application/json
-              produces:
-                - application/json
-              responses:
-                "200":
-                  description: A list of storage units
-                  schema:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        facility_id:
-                          type: string
-                        unit_id:
-                          type: string
-                        status:
-                          type: string
-                        size:
-                          type: string
-                        customer_id:
-                          type: string
-                        booking_start_date:
-                          type: string
-                        booking_end_date:
-                          type: string
-                        facility_name:
-                          type: string
-              x-amazon-apigateway-integration:
-                uri:
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ListUnitsFunction.Arn}/invocations
-                httpMethod: POST
-                type: aws_proxy
-
-  # BookUnitApi (API for booking a storage unit)
-  BookUnitApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      Name: BookUnitApi
-      StageName: prod
-      DefinitionBody:
-        swagger: '2.0'
-        info:
-          title: Storage Unit Management API - Book Unit
-          description: API for booking a storage unit.
-          version: '1.0'
-        paths:
-          /units/book:
-            post:
-              summary: Book a storage unit
-              operationId: bookUnit
-              consumes:
-                - application/json
-              produces:
-                - application/json
-              responses:
-                "200":
-                  description: Unit booked successfully
-                  schema:
-                    type: object
-                    properties:
-                      message:
-                        type: string
-              x-amazon-apigateway-integration:
-                uri:
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${BookUnitFunction.Arn}/invocations
-                httpMethod: POST
-                type: aws_proxy
-
-  # CancelUnitApi (API for canceling a storage unit booking)
-  CancelUnitApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      Name: CancelUnitApi
-      StageName: prod
-      DefinitionBody:
-        swagger: '2.0'
-        info:
-          title: Storage Unit Management API - Cancel Unit
-          description: API for canceling a storage unit booking.
-          version: '1.0'
-        paths:
-          /units/cancel:
-            post:
-              summary: Cancel a storage unit booking
-              operationId: cancelUnit
-              consumes:
-                - application/json
-              produces:
-                - application/json
-              responses:
-                "200":
-                  description: Unit cancellation processed
-                  schema:
-                    type: object
-                    properties:
-                      message:
-                        type: string
-              x-amazon-apigateway-integration:
-                uri:
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CancelUnitFunction.Arn}/invocations
-                httpMethod: POST
-                type: aws_proxy
-
-  # UpdateUnitStatusApi (API for updating unit status)
-  UpdateUnitStatusApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      Name: UpdateUnitStatusApi
-      StageName: prod
-      DefinitionBody:
-        swagger: '2.0'
-        info:
-          title: Storage Unit Management API - Update Status
-          description: API for updating the status of a storage unit.
-          version: '1.0'
-        paths:
-          /units/status:
-            patch:
-              summary: Update the status of a unit
-              operationId: updateUnitStatus
-              consumes:
-                - application/json
-              produces:
-                - application/json
-              responses:
-                "200":
-                  description: Status updated successfully
-                  schema:
-                    type: object
-                    properties:
-                      message:
-                        type: string
-              x-amazon-apigateway-integration:
-                uri:
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${UpdateUnitStatusFunction.Arn}/invocations
-                httpMethod: POST
-                type: aws_proxy
+            TableName: !Ref UsersTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref StorageUnitsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BillingTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref NotificationsTable
+      Events:
+        GetUsers:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RestAPI
+            Path: /users
+            Method: GET
+        CreateUser:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RestAPI
+            Path: /users
+            Method: POST
+        ListUnits:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RestAPI
+            Path: /units
+            Method: GET
+        BookUnit:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RestAPI
+            Path: /units/book
+            Method: POST
+        CancelBooking:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RestAPI
+            Path: /units/cancel/{bookingId}
+            Method: DELETE
+        ManagePayment:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RestAPI
+            Path: /payment
+            Method: PUT
+        ShareAccess:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RestAPI
+            Path: /units/share
+            Method: POST
+        ListUnitsByStatus:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RestAPI
+            Path: /support/units/status/{status}
+            Method: GET
+        UpdateUnitStatus:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RestAPI
+            Path: /support/units/status
+            Method: PUT
 
 Outputs:
-  GetUnitsApiUrl:
-    Description: "URL for the GetUnits API"
-    Value:
-      Fn::Sub: "https://${GetUnitsApi}.execute-api.${AWS::Region}.amazonaws.com/prod/units"
-
-  BookUnitApiUrl:
-    Description: "URL for the BookUnit API"
-    Value:
-      Fn::Sub: "https://${BookUnitApi}.execute-api.${AWS::Region}.amazonaws.com/prod/units/book"
-
-  CancelUnitApiUrl:
-    Description: "URL for the CancelUnit API"
-    Value:
-      Fn::Sub: "https://${CancelUnitApi}.execute-api.${AWS::Region}.amazonaws.com/prod/units/cancel"
-
-  UpdateUnitStatusApiUrl:
-    Description: "URL for the UpdateUnitStatus API"
-    Value:
-      Fn::Sub: "https://${UpdateUnitStatusApi}.execute-api.${AWS::Region}.amazonaws.com/prod/units/status"
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub https://${RestAPI}.execute-api.${AWS::Region}.amazonaws.com/prod

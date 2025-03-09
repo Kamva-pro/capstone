@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="styles/register.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap">
+</head>
+<body>
+    <div class="signup-container">
+        <div class="left-side">
+            <div class="left-overlay">
+                <h1 class="overlay-text">Welcome to Self Storage</h1>
+            </div>
+        </div>
+
+        <div class="right-side">
+            <div class="form-container">
+                <h2 class="form-header">Sign Up</h2>
+                <button onclick="redirectToCognitoSignUp()" class="cta-button">Sign Up with Cognito</button>
+
+                <div class="form-links">
+                    <p>Already have an account? <a href="login.html" class="login-link">Login</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const clientId = '49a3jobn2cps78ide8s0rcenm1'; 
+        const redirectUri = 'http://localhost'; 
+        function redirectToCognitoSignUp() {
+            const signUpUrl = `https://49a3jobn2cps78ide8s0rcenm1.auth.eu-west-1.amazoncognito.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=aws.cognito.signin.user.admin+email+openid+profile+phone`;
+            window.location.href = signUpUrl;
+        }
+    </script>
+</body>
+</html>
